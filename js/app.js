@@ -14,6 +14,8 @@ var Generator = {
 	/* DATA ACCESSORS */
 	colors: [],
 	currentColor: null,
+	pixels: [],
+	lastSavedState: null,
 
 
 	/* DATA HELPERS */
@@ -28,13 +30,22 @@ var Generator = {
 	},
 
 
+	/* DATA SAVING / LOADING */
+	saveState: function() {
+		Generator.lastSavedState = JSON.stringify({
+			colors: Generator.colors,
+			pixels: Generator.pixels
+		});
+	},
+
+
 	/* UI BUILDERS */
 	buildTable: function() {
 		var table = '<table id="screen-table">';
 		for( var y = 0; y < Generator.PIXELS_PER_SIDE; y++ ) {
 			table += '<tr>';
 			for( var x = 0; x < Generator.PIXELS_PER_SIDE; x++ ) {
-				table += '<td><div class="cell" data-color="-1"></div></td>';
+				table += '<td><div class="cell" data-pixel-index="'+(x + y * Generator.PIXELS_PER_SIDE)+'" data-color="-1"></div></td>';
 			}
 			table += '</tr>';
 		}
@@ -75,7 +86,7 @@ var Generator = {
 
 			var $this = $(this);
 			var $target = $(e.target);
-			
+
 			var color_id = parseInt($this.attr('data-color-index'));
 			
 			/* Select color */
