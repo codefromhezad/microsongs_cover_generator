@@ -135,6 +135,11 @@ var Generator = {
 		$body.on('mousedown', '#screen-table', function(e) {
 			e.preventDefault();
 			Generator.userIsDrawing = true;
+
+			var $target = $(e.target);
+			if( $target.is('.cell') ) {
+				Generator.setCellColor($target, Generator.selectedColor);
+			}
 		});
 
 		/* User stops drawing */
@@ -171,20 +176,38 @@ var Generator = {
 
 	setCellColor: function($cell, color_id) {
 		var cell_index = $cell.attr('data-pixel-index');
+		var cell_initial_color = $cell.attr('data-color');
 		var css_color = 'transparent';
 
+		// If same color, do nothing !
+		if( color_id == cell_initial_color ) {
+			return;
+		}
+
+		// If not erasing ...
 		if(color_id != Generator.NULL_PIXEL) {
+
+			// Check there are available pixels for color_id
 			var colorCounter = Generator.usedPixelsPerColor[color_id];
 			var colorMax = Generator.MAX_PIXELS_PER_COLOR[color_id];
 
+			// If not, do nothing !
 			if( colorCounter >= colorMax ) {
 				Generator.userIsDrawing = false;
 				return;
 			}
 
+			// Else, if there is already a color on the cell,
+			// overwrite it, and increment the number of 
+			// available pixels for this initial color
+			if( cell_initial_color != Generator.NULL_PIXEL ) {
+				Generator.usedPixelsPerColor[cell_initial_color] -= 1;
+				Generator.updateColorCounter(cell_initial_color);
+			}
+
+			// Finally, set Pixel Color
 			css_color = Generator.colors[color_id];
 			Generator.usedPixelsPerColor[color_id] += 1;
-
 			Generator.updateColorCounter(color_id);
 		}
 		
