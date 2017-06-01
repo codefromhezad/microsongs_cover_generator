@@ -127,6 +127,12 @@ var Generator = {
 			
 			/* Select color */
 			if( $target.is('.select-indicator') ) {
+				
+				/* Except if no pixel available for this color, in this case, do nothing */
+				if( $this.hasClass('empty') ) {
+					return;
+				}
+
 				Generator.setSelectedColor(color_id);
 			}
 		});
@@ -139,6 +145,7 @@ var Generator = {
 			var $target = $(e.target);
 			if( $target.is('.cell') ) {
 				Generator.setCellColor($target, Generator.selectedColor);
+				Generator.checkColorAvailabilityToUpdateSelectors();
 			}
 		});
 
@@ -155,6 +162,7 @@ var Generator = {
 			}
 
 			Generator.setCellColor($(this), Generator.selectedColor);
+			Generator.checkColorAvailabilityToUpdateSelectors();
 		});
 	},
 
@@ -167,6 +175,20 @@ var Generator = {
 
 		Generator.$color_selector.find('.current').removeClass('current');
 		$ui_color.addClass('current');
+	},
+
+	checkColorAvailabilityToUpdateSelectors: function() {
+		for( var c = 0; c < Generator.NUM_COLORS; c++ ) {
+			var colorCounter = Generator.usedPixelsPerColor[c];
+			var colorMax = Generator.MAX_PIXELS_PER_COLOR[c];
+			var $colorSelectorUI = Generator.$color_selector.find('[data-color-index='+c+']');
+
+			if( colorCounter >= colorMax ) {
+				$colorSelectorUI.addClass('empty');
+			} else {
+				$colorSelectorUI.removeClass('empty');
+			}
+		}
 	},
 
 	updateColorCounter(color_id) {

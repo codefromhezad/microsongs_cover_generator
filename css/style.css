@@ -85,6 +85,8 @@ html, body {
 	padding-top: 100%;
 	position: relative;
 	cursor: pointer;
+
+	transition: all 0.2s ease;
 }
 
 #color-selector .color-wrapper .color .select-indicator {
@@ -112,4 +114,13 @@ html, body {
 	background: #e2e2e2;
 	text-align: center;
 	font-size: 14px;
+}
+
+#color-selector .color-wrapper.empty .color {
+	transform: rotate(45deg) scale(0.2);
+}
+
+#color-selector .color-wrapper.empty .metas {
+    opacity: 0.5;
+    background: transparent;
 }
