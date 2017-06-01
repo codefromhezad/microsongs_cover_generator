@@ -1,7 +1,9 @@
 var Generator = {
 
+	/* DATA CONSTS */
+	NULL_PIXEL: -1,
 
-	/* CONSTS */
+	/* APP CONSTS */
 	PIXELS_PER_SIDE: 40,
 	NUM_COLORS: 14,
 
@@ -13,9 +15,10 @@ var Generator = {
 
 	/* DATA ACCESSORS */
 	colors: [],
-	currentColor: null,
+	selectedColor: null,
 	pixels: [],
 	lastSavedState: null,
+	userIsDrawing: false,
 
 
 	/* DATA HELPERS */
@@ -30,7 +33,15 @@ var Generator = {
 	},
 
 
-	/* DATA SAVING / LOADING */
+	/* DATA INITIATING / SAVING / LOADING */
+	initPixelsValue: function() {
+		var total_pixels = Generator.PIXELS_PER_SIDE * Generator.PIXELS_PER_SIDE;
+
+		for(var i = 0; i < total_pixels; i++) {
+			Generator.pixels[i] = Generator.NULL_PIXEL;
+		}
+	},
+
 	saveState: function() {
 		Generator.lastSavedState = JSON.stringify({
 			colors: Generator.colors,
@@ -45,7 +56,7 @@ var Generator = {
 		for( var y = 0; y < Generator.PIXELS_PER_SIDE; y++ ) {
 			table += '<tr>';
 			for( var x = 0; x < Generator.PIXELS_PER_SIDE; x++ ) {
-				table += '<td><div class="cell" data-pixel-index="'+(x + y * Generator.PIXELS_PER_SIDE)+'" data-color="-1"></div></td>';
+				table += '<td><div class="cell" data-pixel-index="'+(x + y * Generator.PIXELS_PER_SIDE)+'" data-color="'+Generator.NULL_PIXEL+'"></div></td>';
 			}
 			table += '</tr>';
 		}
@@ -91,31 +102,67 @@ var Generator = {
 			
 			/* Select color */
 			if( $target.is('.select-indicator') ) {
-				Generator.setCurrentColor(color_id);
+				Generator.setSelectedColor(color_id);
 			}
-		})
+		});
+
+		/* User starts drawing */
+		$body.on('mousedown', '#screen-table', function(e) {
+			e.preventDefault();
+			Generator.userIsDrawing = true;
+		});
+
+		/* User stops drawing */
+		$body.on('mouseup mouseleave', '#screen-table', function(e) {
+			e.preventDefault();
+			Generator.userIsDrawing = false;
+		});
+
+		/* User is moving mouse over screen "pixels" */
+		$body.on('mouseenter', '#screen-table .cell', function(e) {
+			if( ! Generator.userIsDrawing ) {
+				return;
+			}
+
+			Generator.setCellColor($(this), Generator.selectedColor);
+		});
 	},
 
 
-	/* UI UPDATERS */
-	setCurrentColor: function(color_id) {
-		Generator.currentColor = color_id;
+	/* UI / DATA UPDATERS */
+	setSelectedColor: function(color_id) {
+		Generator.selectedColor = color_id;
 
-		var $ui_color = Generator.$color_selector.find('[data-color-index='+Generator.currentColor+']');
+		var $ui_color = Generator.$color_selector.find('[data-color-index='+Generator.selectedColor+']');
 
 		Generator.$color_selector.find('.current').removeClass('current');
 		$ui_color.addClass('current');
+	},
+
+	setCellColor: function($cell, color_id) {
+		var cell_index = $cell.attr('data-pixel-index');
+		Generator.pixels[cell_index] = color_id;
+		$cell.attr('data-color', color_id);
+
+		var css_color = 'transparent';
+		if( color_id != Generator.NULL_PIXEL ) {
+			css_color = Generator.colors[color_id];
+		}
+
+		$cell.css('background-color', css_color);
 	},
 
 
 	/* MAIN() / INIT FUNCTION */
 	init: function() {
 		Generator.generateRandomColors();
+		
+		Generator.initPixelsValue();
 
 		Generator.buildTable();
 		Generator.buildColorSelector();
 
-		Generator.setCurrentColor(0);
+		Generator.setSelectedColor(0);
 
 		Generator.bindListeners();
 
