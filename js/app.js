@@ -6,6 +6,22 @@ var Generator = {
 	/* APP CONSTS */
 	PIXELS_PER_SIDE: 40,
 	NUM_COLORS: 14,
+	MAX_PIXELS_PER_COLOR: [
+		90, // Apex
+		122, // A better sight
+		89, // An entity
+		135, // Canopy
+		128, // Retrofutur
+		108, // Four Chords For Astor
+		116, // Skylines
+		131, // What was that?
+		125, // Drum and Grass
+		120, // Asking for a favour at the worst time
+		113, // Liars
+		117, // Crawlers
+		120, // Centipede
+		86 // ??
+	],
 
 
 	/* UI ACCESSORS */
@@ -15,6 +31,7 @@ var Generator = {
 
 	/* DATA ACCESSORS */
 	colors: [],
+	usedPixelsPerColor: [],
 	selectedColor: null,
 	pixels: [],
 	lastSavedState: null,
@@ -34,18 +51,26 @@ var Generator = {
 
 
 	/* DATA INITIATING / SAVING / LOADING */
-	initPixelsValue: function() {
-		var total_pixels = Generator.PIXELS_PER_SIDE * Generator.PIXELS_PER_SIDE;
+	initPixelsValueAndAvailablePixels: function() {
 
+		// Set all pixels to their default value (NULL_PIXEL)
+		var total_pixels = Generator.PIXELS_PER_SIDE * Generator.PIXELS_PER_SIDE;
 		for(var i = 0; i < total_pixels; i++) {
 			Generator.pixels[i] = Generator.NULL_PIXEL;
 		}
+
+		// Set default available pixels per color
+		for(var i = 0; i < Generator.NUM_COLORS; i++) {
+			Generator.usedPixelsPerColor[i] = 0;
+		}
+
 	},
 
 	saveState: function() {
 		Generator.lastSavedState = JSON.stringify({
 			colors: Generator.colors,
-			pixels: Generator.pixels
+			pixels: Generator.pixels,
+			usedPixelsPerColor: Generator.usedPixelsPerColor
 		});
 	},
 
@@ -75,8 +100,8 @@ var Generator = {
 							'</div>' +
 							'<div class="metas">' +
 								'<div class="counter">' +
-									'<span class="available">5</span> / ' +
-									'<span class="total">12</span>' +
+									'<span class="available">'+Generator.usedPixelsPerColor[c]+'</span> / ' +
+									'<span class="total">'+Generator.MAX_PIXELS_PER_COLOR[c]+'</span>' +
 								'</div>' +
 							'</div>' +
 					    '</div>';
@@ -139,16 +164,32 @@ var Generator = {
 		$ui_color.addClass('current');
 	},
 
+	updateColorCounter(color_id) {
+		var $wrapper = Generator.$color_selector.find('[data-color-index='+color_id+']');
+		$wrapper.find('.metas .counter .available').text(Generator.usedPixelsPerColor[color_id]);
+	},
+
 	setCellColor: function($cell, color_id) {
 		var cell_index = $cell.attr('data-pixel-index');
+		var css_color = 'transparent';
+
+		if(color_id != Generator.NULL_PIXEL) {
+			var colorCounter = Generator.usedPixelsPerColor[color_id];
+			var colorMax = Generator.MAX_PIXELS_PER_COLOR[color_id];
+
+			if( colorCounter >= colorMax ) {
+				Generator.userIsDrawing = false;
+				return;
+			}
+
+			css_color = Generator.colors[color_id];
+			Generator.usedPixelsPerColor[color_id] += 1;
+
+			Generator.updateColorCounter(color_id);
+		}
+		
 		Generator.pixels[cell_index] = color_id;
 		$cell.attr('data-color', color_id);
-
-		var css_color = 'transparent';
-		if( color_id != Generator.NULL_PIXEL ) {
-			css_color = Generator.colors[color_id];
-		}
-
 		$cell.css('background-color', css_color);
 	},
 
@@ -156,8 +197,8 @@ var Generator = {
 	/* MAIN() / INIT FUNCTION */
 	init: function() {
 		Generator.generateRandomColors();
-		
-		Generator.initPixelsValue();
+
+		Generator.initPixelsValueAndAvailablePixels();
 
 		Generator.buildTable();
 		Generator.buildColorSelector();
