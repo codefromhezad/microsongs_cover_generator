@@ -11,15 +11,18 @@
 	</div>
 
 	<div id="save-load-pane">
-		<label for="current-state-json">Current state (Copy and paste in a text file)</label>
-		<textarea id="current-state-json" disabled></textarea>
-		<hr>
+		<div class="left-pane">
+			<label for="current-state-json">Current state (Copy and paste in a text file)</label>
+			<textarea id="current-state-json" disabled></textarea>
+		</div>
 
-		<label for="load-state-json">Load state (Paste in the next textarea and click "Load")</label>
-		<textarea id="load-state-json"></textarea>
+		<div class="right-pane">
+			<label for="load-state-json">Load state (Paste in the next textarea and click "Load")</label>
+			<textarea id="load-state-json"></textarea>
 
-		<div class="interactors">
-			<button id="load-json-state-button">Load</button>
+			<div class="interactors">
+				<button id="load-json-state-button">Load</button>
+			</div>
 		</div>
 	</div>
 

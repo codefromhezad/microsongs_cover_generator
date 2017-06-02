@@ -130,24 +130,46 @@ html, body {
 #save-load-pane {
 	position: relative;
 	width: 100%;
+	overflow: hidden;
+    border-top: 1px solid #404040;
+}
+
+#save-load-pane > div {
+	float: left;
+	width: 50%;
+	box-sizing: border-box;
+	padding: 15px;
+}
+
+#save-load-pane .left-pane {
+	border-right: 1px solid #404040;
 }
 
 #save-load-pane label {
+	display: block;
 	font-size: 14px;
-    margin: 5%;
+    margin: 0 15px;
     font-weight: bold;
 }
 
 #save-load-pane textarea {
 	display: block;
-    width: 90%;
-    margin: 5%;
-    height: 200px;
-    resize: none;
+	margin: 15px auto;
+	height: 200px;
+	resize: none;
+	width: 47vw;
 }
 
 #colors-pane #save-load-pane .interactors {
 	display: block;
     width: 90%;
     margin: 5%;
+}
+
+#colors-pane #save-load-pane .interactors button {
+	padding: 5px;
+	border: 2px solid #404040;
+	background: #eee;
+	text-transform: uppercase;
+	font-size: 14px;
 }
