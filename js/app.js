@@ -51,7 +51,7 @@ var Generator = {
 
 
 	/* DATA INITIATING / SAVING / LOADING */
-	initPixelsValueAndAvailablePixels: function() {
+	setInitialDefaultValues: function() {
 
 		// Set all pixels to their default value (NULL_PIXEL)
 		var total_pixels = Generator.PIXELS_PER_SIDE * Generator.PIXELS_PER_SIDE;
@@ -74,6 +74,14 @@ var Generator = {
 		});
 	},
 
+	loadState: function(stateString) {
+		var jsonState = JSON.parse(stateString);
+
+		Generator.colors = jsonState.colors;
+		Generator.pixels = jsonState.pixels;
+		Generator.usedPixelsPerColor = jsonState.usedPixelsPerColor;
+	},
+
 
 	/* UI BUILDERS */
 	buildTable: function() {
@@ -81,7 +89,15 @@ var Generator = {
 		for( var y = 0; y < Generator.PIXELS_PER_SIDE; y++ ) {
 			table += '<tr>';
 			for( var x = 0; x < Generator.PIXELS_PER_SIDE; x++ ) {
-				table += '<td><div class="cell" data-pixel-index="'+(x + y * Generator.PIXELS_PER_SIDE)+'" data-color="'+Generator.NULL_PIXEL+'"></div></td>';
+				var pixel_index = (x + y * Generator.PIXELS_PER_SIDE);
+				var pixel_color_id = Generator.pixels[pixel_index];
+
+				var css_color = 'transparent';
+				if( pixel_color_id != Generator.NULL_PIXEL ) {
+					css_color = Generator.colors[pixel_color_id];
+				}
+				
+				table += '<td><div class="cell" data-pixel-index="'+pixel_index+'" data-color="'+pixel_color_id+'" style="background-color: '+css_color+';"></div></td>';
 			}
 			table += '</tr>';
 		}
@@ -153,6 +169,9 @@ var Generator = {
 		$body.on('mouseup mouseleave', '#screen-table', function(e) {
 			e.preventDefault();
 			Generator.userIsDrawing = false;
+
+			Generator.saveState();
+			Generator.updateCurrentStateTextarea();
 		});
 
 		/* User is moving mouse over screen "pixels" */
@@ -164,6 +183,15 @@ var Generator = {
 			Generator.setCellColor($(this), Generator.selectedColor);
 			Generator.checkColorAvailabilityToUpdateSelectors();
 		});
+
+		/* User loads saved state */
+		$body.on('click', '#load-json-state-button', function(e) {
+			e.preventDefault();
+
+			var stateString = $('#load-state-json').val();
+			Generator.loadState(stateString);
+			Generator.init(true);
+		})
 	},
 
 
@@ -175,6 +203,10 @@ var Generator = {
 
 		Generator.$color_selector.find('.current').removeClass('current');
 		$ui_color.addClass('current');
+	},
+
+	updateCurrentStateTextarea: function() {
+		$('#current-state-json').val(Generator.lastSavedState);
 	},
 
 	checkColorAvailabilityToUpdateSelectors: function() {
@@ -238,21 +270,29 @@ var Generator = {
 		$cell.css('background-color', css_color);
 	},
 
-
 	/* MAIN() / INIT FUNCTION */
-	init: function() {
-		Generator.generateRandomColors();
+	init: function(fromLoadedState) {
+		if( ! fromLoadedState ) {
+			Generator.generateRandomColors();
+			Generator.setInitialDefaultValues();
 
-		Generator.initPixelsValueAndAvailablePixels();
+			Generator.bindListeners();
+		}
 
 		Generator.buildTable();
 		Generator.buildColorSelector();
 
 		Generator.setSelectedColor(0);
 
-		Generator.bindListeners();
+		$('#table-pane').html('');
+		$('#colors-pane').html('');
 
 		$('#table-pane').append(Generator.$table);
 		$('#colors-pane').append(Generator.$color_selector);
+
+		Generator.updateCurrentStateTextarea();
+		Generator.checkColorAvailabilityToUpdateSelectors();
+
+		Generator.updateCurrentStateTextarea();
 	}
 }

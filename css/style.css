@@ -124,3 +124,30 @@ html, body {
     opacity: 0.5;
     background: transparent;
 }
+
+
+
+#save-load-pane {
+	position: relative;
+	width: 100%;
+}
+
+#save-load-pane label {
+	font-size: 14px;
+    margin: 5%;
+    font-weight: bold;
+}
+
+#save-load-pane textarea {
+	display: block;
+    width: 90%;
+    margin: 5%;
+    height: 200px;
+    resize: none;
+}
+
+#colors-pane #save-load-pane .interactors {
+	display: block;
+    width: 90%;
+    margin: 5%;
+}
