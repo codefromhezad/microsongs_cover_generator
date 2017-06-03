@@ -77,6 +77,7 @@ html, body {
 	float: left;
 	padding-left: 15px;
 	padding-bottom: 15px;
+	position: relative;
 }
 
 #color-selector .color-wrapper .color {
@@ -97,8 +98,48 @@ html, body {
 	bottom: 0;
 	border: 2px solid #000;
 	opacity: 0;
+	z-index: 2;
 
 	transition: all 0.2s ease;
+}
+
+#color-selector .color-wrapper .color .select-indicator {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+
+	transition: all 0.2s ease;
+}
+
+#color-selector .color-wrapper .color .mode-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    text-align: center;
+    background: rgba(255, 255, 255, 0.5) no-repeat center;
+    padding: 5px 10px;
+    border-radius: 50%;
+    height: 50%;
+    width: 50%;
+    
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+#color-selector .color-wrapper .color .mode-indicator i {
+	font-size: 20px;
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+}
+
+#color-selector .color-wrapper.current .color .mode-indicator {
+	opacity: 1;
 }
 
 #color-selector .color-wrapper.current .color .select-indicator {
@@ -111,13 +152,14 @@ html, body {
 
 #color-selector .color-wrapper .metas {
 	padding: 9px 5px;
+	padding-bottom: 0;
 	background: #e2e2e2;
 	text-align: center;
 	font-size: 14px;
 }
 
 #color-selector .color-wrapper.empty .color {
-	transform: rotate(45deg) scale(0.2);
+	transform: scale(0.8);
 }
 
 #color-selector .color-wrapper.empty .metas {
@@ -125,6 +167,16 @@ html, body {
     background: transparent;
 }
 
+
+#current-mode {
+	position: fixed;
+    right: 20px;
+    bottom: 0;
+    padding: 10px;
+    background: #ddd;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
 
 
 #save-load-pane {

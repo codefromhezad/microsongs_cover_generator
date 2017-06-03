@@ -36,6 +36,7 @@ var Generator = {
 	pixels: [],
 	lastSavedState: null,
 	userIsDrawing: false,
+	eraserMode: false,
 
 
 	/* DATA HELPERS */
@@ -113,6 +114,9 @@ var Generator = {
 			selector += '<div class="color-wrapper" data-color-index="'+c+'">' +
 							'<div class="color" style="background-color: '+color+';">' +
 								'<div class="select-indicator"></div>' +
+								'<div class="mode-indicator">' +
+									'<i class="fa fa-paint-brush"></i>' +
+								'</div>' +
 							'</div>' +
 							'<div class="metas">' +
 								'<div class="counter">' +
@@ -132,24 +136,22 @@ var Generator = {
 	bindListeners: function() {
 		var $body = $('body');
 
-		/* User interacts with color selector */
+		/* User selects color */
 		$body.on('click', '#color-selector .color-wrapper', function(e) {
 			e.preventDefault();
 
 			var $this = $(this);
-			var $target = $(e.target);
-
 			var color_id = parseInt($this.attr('data-color-index'));
-			
-			/* Select color */
-			if( $target.is('.select-indicator') ) {
-				
-				/* Except if no pixel available for this color, in this case, do nothing */
-				if( $this.hasClass('empty') ) {
-					return;
-				}
 
+			if( ! $this.hasClass('current') ) {
 				Generator.setSelectedColor(color_id);
+				Generator.setEraserMode(false);
+			} else {
+				if( ! Generator.eraserMode ) {
+					Generator.setEraserMode(color_id);
+				} else {
+					Generator.setEraserMode(false);
+				}
 			}
 		});
 
@@ -205,6 +207,20 @@ var Generator = {
 		$ui_color.addClass('current');
 	},
 
+	setEraserMode: function(color_id) {
+		if( color_id === false ) {
+			Generator.eraserMode = false;
+			var $icon = Generator.$color_selector.find('.mode-indicator .fa-eraser');
+			$icon.removeClass().addClass('fa fa-paint-brush');
+			$('#current-mode').text('Painting ...');
+		} else {
+			Generator.eraserMode = true;
+			var $wrapper = Generator.$color_selector.find('[data-color-index='+color_id+']');
+			$wrapper.find('.mode-indicator i').removeClass().addClass('fa fa-eraser');
+			$('#current-mode').text('Erasing ...');
+		}
+	},
+
 	updateCurrentStateTextarea: function() {
 		$('#current-state-json').val(Generator.lastSavedState);
 	},
@@ -233,14 +249,14 @@ var Generator = {
 		var cell_initial_color = $cell.attr('data-color');
 		var css_color = 'transparent';
 
-		// If same color, do nothing !
-		if( color_id == cell_initial_color ) {
-			return;
-		}
-
 		// If not erasing ...
-		if(color_id != Generator.NULL_PIXEL) {
+		if( ! Generator.eraserMode ) {
 
+			// If same color, do nothing !
+			if( color_id == cell_initial_color ) {
+				return;
+			}
+			
 			// Check there are available pixels for color_id
 			var colorCounter = Generator.usedPixelsPerColor[color_id];
 			var colorMax = Generator.MAX_PIXELS_PER_COLOR[color_id];
@@ -263,6 +279,16 @@ var Generator = {
 			css_color = Generator.colors[color_id];
 			Generator.usedPixelsPerColor[color_id] += 1;
 			Generator.updateColorCounter(color_id);
+		
+		} else {
+			// Else, if erasing, erase only currently selected color
+			if( cell_initial_color != color_id ) {
+				return;
+			} else {
+				color_id = Generator.NULL_PIXEL;
+				Generator.usedPixelsPerColor[cell_initial_color] -= 1;
+				Generator.updateColorCounter(cell_initial_color);
+			}
 		}
 		
 		Generator.pixels[cell_index] = color_id;
@@ -282,6 +308,7 @@ var Generator = {
 		Generator.buildTable();
 		Generator.buildColorSelector();
 
+		Generator.setEraserMode(false);
 		Generator.setSelectedColor(0);
 
 		$('#table-pane').html('');
