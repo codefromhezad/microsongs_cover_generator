@@ -83,6 +83,19 @@ var Generator = {
 		Generator.usedPixelsPerColor = jsonState.usedPixelsPerColor;
 	},
 
+	saveToJsonFile: function() {
+		var tstamp = new Date().getTime() / 1000;
+		var filename = tstamp + '_microsongs_cover_export.json';
+		
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(Generator.lastSavedState));
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+		element.click();
+		document.body.removeChild(element);
+	},
 
 	/* UI BUILDERS */
 	buildTable: function() {
@@ -173,7 +186,6 @@ var Generator = {
 			Generator.userIsDrawing = false;
 
 			Generator.saveState();
-			Generator.updateCurrentStateTextarea();
 		});
 
 		/* User is moving mouse over screen "pixels" */
@@ -186,14 +198,28 @@ var Generator = {
 			Generator.checkColorAvailabilityToUpdateSelectors();
 		});
 
-		/* User loads saved state */
-		$body.on('click', '#load-json-state-button', function(e) {
+		/* MENU INTERACTIONS */
+		/* Save to JSON file */
+		$body.on('click', '#export-to-json-file', function(e) {
 			e.preventDefault();
+			Generator.saveToJsonFile();
+		});
 
-			var stateString = $('#load-state-json').val();
-			Generator.loadState(stateString);
-			Generator.init(true);
-		})
+		/* Load JSON file */
+		$body.on('change', '#import-json-file-file-input', function(e) {
+			var file = e.target.files[0];
+			if (!file) {
+			return;
+			}
+
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var contents = e.target.result;
+				Generator.loadState(contents);
+				Generator.init(true);
+			};
+			reader.readAsText(file);
+		});
 	},
 
 
@@ -219,10 +245,6 @@ var Generator = {
 			$wrapper.find('.mode-indicator i').removeClass().addClass('fa fa-eraser');
 			$('#current-mode').text('Erasing ...');
 		}
-	},
-
-	updateCurrentStateTextarea: function() {
-		$('#current-state-json').val(Generator.lastSavedState);
 	},
 
 	checkColorAvailabilityToUpdateSelectors: function() {
@@ -317,9 +339,6 @@ var Generator = {
 		$('#table-pane').append(Generator.$table);
 		$('#colors-pane').append(Generator.$color_selector);
 
-		Generator.updateCurrentStateTextarea();
 		Generator.checkColorAvailabilityToUpdateSelectors();
-
-		Generator.updateCurrentStateTextarea();
 	}
 }

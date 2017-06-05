@@ -18,42 +18,40 @@ html, body {
 /* App Style */
 
 #app {
-	display: flex; 
-	justify-content: center;
-	flex-direction: row;
-	align-items: stretch;
+	position: relative;
+	overflow: hidden;
 }
 
 #app > div {
 	position: relative;
+	float: left;
 }
 
 
-
 #table-pane { 
-	flex-grow: 2; 
+	width: 50%;
 	border-right: 1px solid #404040;
 	padding: 15px;
 }
 
-#screen-table {
+#table-pane #screen-table {
 	width: 100%;
 	border-collapse: collapse;
 	border-spacing: 0;
 }
 
-#screen-table tr {
+#table-pane #screen-table tr {
 	margin: 0;
 	padding: 0;
 	border: none;
 }
 
-#screen-table td {
+#table-pane #screen-table td {
 	border: 1px solid #ccc;
 	padding: 0;
 }
 
-#screen-table .cell {
+#table-pane #screen-table .cell {
 	width: 100%;
 	height: 0;
 	padding-top: 100%;
@@ -61,18 +59,22 @@ html, body {
 
 
 
-#colors-pane { 
-	flex-grow: 1; 
+#toolkit-pane { 
+	width: 50%;
+	overflow: hidden;
 }
 
-#color-selector {
-	position: absolute;
-	top: 15px;
-	right: 15px;
-	left: 0;
+#toolkit-pane #colors-pane {
+	padding: 15px;
+	padding-left: 0;
+	padding-bottom: 0;
+	overflow: hidden;
+	border-right: 1px solid #404040;
+	width: 60%;
+	float: left;
 }
 
-#color-selector .color-wrapper {
+#toolkit-pane #colors-pane .color-wrapper {
 	width: 20%;
 	float: left;
 	padding-left: 15px;
@@ -80,7 +82,7 @@ html, body {
 	position: relative;
 }
 
-#color-selector .color-wrapper .color {
+#toolkit-pane #colors-pane .color-wrapper .color {
 	width: 100%;
 	height: 0;
 	padding-top: 100%;
@@ -90,7 +92,7 @@ html, body {
 	transition: all 0.2s ease;
 }
 
-#color-selector .color-wrapper .color .select-indicator {
+#toolkit-pane #colors-pane .color-wrapper .color .select-indicator {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -103,18 +105,7 @@ html, body {
 	transition: all 0.2s ease;
 }
 
-#color-selector .color-wrapper .color .select-indicator {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 1;
-
-	transition: all 0.2s ease;
-}
-
-#color-selector .color-wrapper .color .mode-indicator {
+#toolkit-pane #colors-pane .color-wrapper .color .mode-indicator {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -130,7 +121,7 @@ html, body {
     opacity: 0;
 }
 
-#color-selector .color-wrapper .color .mode-indicator i {
+#toolkit-pane #colors-pane .color-wrapper .color .mode-indicator i {
 	font-size: 20px;
 	position: absolute;
     top: 50%;
@@ -138,11 +129,11 @@ html, body {
     transform: translate3d(-50%, -50%, 0);
 }
 
-#color-selector .color-wrapper.current .color .mode-indicator {
+#toolkit-pane #colors-pane .color-wrapper.current .color .mode-indicator {
 	opacity: 1;
 }
 
-#color-selector .color-wrapper.current .color .select-indicator {
+#toolkit-pane #colors-pane .color-wrapper.current .color .select-indicator {
 	opacity: 1;
     left: -5px;
     top: -5px;
@@ -150,21 +141,81 @@ html, body {
     bottom: -5px;
 }
 
-#color-selector .color-wrapper .metas {
-	padding: 9px 5px;
-	padding-bottom: 0;
-	background: #e2e2e2;
-	text-align: center;
-	font-size: 14px;
+#toolkit-pane #colors-pane .color-wrapper .metas {
+	padding: 5px;
+    background: #e2e2e2;
+    text-align: center;
+    font-size: 14px;
+    opacity: 1;
 }
 
-#color-selector .color-wrapper.empty .color {
+#toolkit-pane #colors-pane .color-wrapper.empty .color {
 	transform: scale(0.8);
+	opacity: 0.5;
 }
 
-#color-selector .color-wrapper.empty .metas {
+#toolkit-pane #colors-pane .color-wrapper.empty .metas {
     opacity: 0.5;
     background: transparent;
+}
+
+
+#toolkit-pane #menu-pane {
+	width: 40%;
+	float: left;
+	padding: 15px;
+    padding-left: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    list-style-type: none;
+    margin: 0;
+}
+
+#toolkit-pane #menu-pane li {
+	display: block;
+	float: left;
+	width: 50%;
+	padding-left: 15px;
+	padding-bottom: 15px;
+}
+
+#toolkit-pane #menu-pane a {
+	display: block;
+    text-decoration: none;
+    color: #fff;
+    background-color: #6496c8;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0 4px #27496d;
+    font-size: 14px;
+    padding: 10px;
+    position: relative;
+}
+
+#toolkit-pane #menu-pane a input[type=file] {
+	position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 2;
+}
+
+#toolkit-pane #menu-pane a i {
+	font-size: 130%;
+	margin-right: 3px;
+	transform: translateY(1px);
+}
+
+#toolkit-pane #menu-pane a:hover {
+	background-color: #417cb8;
+}
+
+#toolkit-pane #menu-pane a:active {
+	background-color: #417cb8;
+	box-shadow: 0 2px #27496d;
+	transform: translateY(2px);
 }
 
 
@@ -210,18 +261,4 @@ html, body {
 	height: 200px;
 	resize: none;
 	width: 47vw;
-}
-
-#colors-pane #save-load-pane .interactors {
-	display: block;
-    width: 90%;
-    margin: 5%;
-}
-
-#colors-pane #save-load-pane .interactors button {
-	padding: 5px;
-	border: 2px solid #404040;
-	background: #eee;
-	text-transform: uppercase;
-	font-size: 14px;
 }
