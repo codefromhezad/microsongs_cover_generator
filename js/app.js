@@ -25,9 +25,12 @@ var Generator = {
 
 
 	/* UI ACCESSORS */
+	$app: null,
 	$table: null,
 	$color_selector: null,
-
+	$color_picker: null,
+	$color_picker_ui: null,
+	$selected_color_wrapper: null,
 
 	/* DATA ACCESSORS */
 	colors: [],
@@ -37,6 +40,7 @@ var Generator = {
 	lastSavedState: null,
 	userIsDrawing: false,
 	eraserMode: false,
+	colorPickerIsActive: false,
 
 
 	/* DATA HELPERS */
@@ -144,14 +148,57 @@ var Generator = {
 		Generator.$color_selector = $(selector);
 	},
 
+	/* UI LISTENERS / PLUGIN INITIATORS */
+	initPlugins: function() {
 
-	/* UI LISTENERS */
+		/* Init color picker */
+		Generator.$color_picker = $('#color-picker').spectrum({
+			flat: true,
+		    showInput: false,
+		    showInitial: false,
+		    allowEmpty: false,
+		    clickoutFiresChange: true,
+		    move: function(move_event) {
+		    	/* Live color preview */
+		    	var color_value = move_event.toHexString();
+		    	Generator.updateSelectedColorRGB(color_value);
+		    },
+		    change: function(change_event) {
+		    	if( ! Generator.colorPickerIsActive ) {
+		    		return;
+		    	}
+
+		    	/* Save new color */
+		    	var color_value = change_event.toHexString();
+
+		    	Generator.colors[Generator.selectedColor] = color_value;
+		    	Generator.updateSelectedColorRGB(color_value);
+		    	Generator.hideColorPicker();
+		    }
+		});
+		Generator.$color_picker_ui = $('.sp-container');
+
+		/* Override "cancel" click since the plugin doesn't
+		   triggers a "cancel" */
+		Generator.$color_picker_ui.find('.sp-cancel').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			Generator.cancelColorSelection();
+		})
+	},
+
 	bindListeners: function() {
 		var $body = $('body');
 
-		/* User selects color */
+
+		/* User selects color or sets erasing mode */
 		$body.on('click', '#color-selector .color-wrapper', function(e) {
 			e.preventDefault();
+
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
 
 			var $this = $(this);
 			var color_id = parseInt($this.attr('data-color-index'));
@@ -168,9 +215,30 @@ var Generator = {
 			}
 		});
 
+		/* User wants to change RGB color for color_ID */
+		$body.on('contextmenu', '#color-selector .color-wrapper .color', function(e) {
+			e.preventDefault();
+
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
+
+			var $this = $(this);
+			var $wrapper = $this.closest('.color-wrapper');
+
+			var color_id = parseInt($wrapper.attr('data-color-index'));
+
+			Generator.showColorPicker(color_id);
+		});
+
 		/* User starts drawing */
 		$body.on('mousedown', '#screen-table', function(e) {
 			e.preventDefault();
+
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
+
 			Generator.userIsDrawing = true;
 
 			var $target = $(e.target);
@@ -183,6 +251,11 @@ var Generator = {
 		/* User stops drawing */
 		$body.on('mouseup mouseleave', '#screen-table', function(e) {
 			e.preventDefault();
+
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
+
 			Generator.userIsDrawing = false;
 
 			Generator.saveState();
@@ -190,7 +263,7 @@ var Generator = {
 
 		/* User is moving mouse over screen "pixels" */
 		$body.on('mouseenter', '#screen-table .cell', function(e) {
-			if( ! Generator.userIsDrawing ) {
+			if( Generator.colorPickerIsActive || ! Generator.userIsDrawing ) {
 				return;
 			}
 
@@ -202,11 +275,28 @@ var Generator = {
 		/* Save to JSON file */
 		$body.on('click', '#export-to-json-file', function(e) {
 			e.preventDefault();
+
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
+
 			Generator.saveToJsonFile();
+		});
+
+		/* Avoid showing file dialog on import button is color picker is active */
+		$body.on('click', '#import-json-file-file-input', function(e) {
+			if( Generator.colorPickerIsActive ) {
+				e.preventDefault();
+				return;
+			}
 		});
 
 		/* Load JSON file */
 		$body.on('change', '#import-json-file-file-input', function(e) {
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
+
 			var file = e.target.files[0];
 			if (!file) {
 			return;
@@ -227,10 +317,53 @@ var Generator = {
 	setSelectedColor: function(color_id) {
 		Generator.selectedColor = color_id;
 
-		var $ui_color = Generator.$color_selector.find('[data-color-index='+Generator.selectedColor+']');
+		Generator.$selected_color_wrapper = Generator.$color_selector.find('[data-color-index='+Generator.selectedColor+']');
 
 		Generator.$color_selector.find('.current').removeClass('current');
-		$ui_color.addClass('current');
+		Generator.$selected_color_wrapper.addClass('current');
+	},
+
+	updateSelectedColorRGB: function(color_value) {
+		Generator.$selected_color_wrapper.find('.color').css('background', color_value);
+		Generator.$table.find('.cell[data-color='+Generator.selectedColor+']').css({
+			'background-color': color_value
+		});
+	},
+
+	showColorPicker: function(color_id) {
+		Generator.colorPickerIsActive = true;
+		Generator.$app.addClass('color-picker-mode');
+
+		var $wrapper = $('#color-selector .color-wrapper[data-color-index='+color_id+']');
+		var color_value = Generator.colors[color_id];
+		var wrapper_position_info = $wrapper[0].getBoundingClientRect();
+
+		Generator.setSelectedColor(color_id);
+
+		Generator.$color_picker.spectrum('set', color_value);
+		Generator.$color_picker_ui.css({
+			display: 'inline-block',
+			top: wrapper_position_info.top,
+			left: wrapper_position_info.right + 15
+		});
+		Generator.$color_picker.spectrum('reflow');
+	},
+
+	hideColorPicker: function() {
+		Generator.colorPickerIsActive = false;
+		Generator.$app.removeClass('color-picker-mode');
+		Generator.$color_picker_ui.hide();
+	},
+
+	cancelColorSelection: function() {
+		Generator.hideColorPicker();
+		
+		/* Reset color to original color */
+		var color_value = Generator.colors[Generator.selectedColor];
+		Generator.$selected_color_wrapper.find('.color').css('background', color_value);
+		Generator.$table.find('.cell[data-color='+Generator.selectedColor+']').css({
+			'background-color': color_value
+		});
 	},
 
 	setEraserMode: function(color_id) {
@@ -319,11 +452,13 @@ var Generator = {
 	},
 
 	/* MAIN() / INIT FUNCTION */
-	init: function(fromLoadedState) {
-		if( ! fromLoadedState ) {
+	init: function(reinitiating) {
+		if( ! reinitiating ) {
+			Generator.$app = $('#app');
+
 			Generator.generateRandomColors();
 			Generator.setInitialDefaultValues();
-
+			Generator.initPlugins();
 			Generator.bindListeners();
 		}
 

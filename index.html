@@ -3,8 +3,9 @@
 	<meta charset="utf8">
 	<title>μSongs Cover Generator</title>
 
-	<link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="js/vendor/spectrum/spectrum.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
 	<div id="app">
@@ -15,13 +16,13 @@
 				<li>
 					<a href="#" id="export-to-json-file">
 						<i class="fa fa-download" aria-hidden="true"></i>
-						Save to file
+						Save state
 					</a>
 				</li>
 				<li>
 					<a href="#" id="import-json-file">
 						<i class="fa fa-upload" aria-hidden="true"></i>
-						Load file
+						Load state
 						<input type="file" id="import-json-file-file-input">
 					</a>
 				</li>
@@ -29,9 +30,12 @@
 		</div>
 	</div>
 
+	<input id="color-picker" type="text">
+
 	<div id="current-mode"></div>
 	
-	<script src="js/jquery-3.2.1.min.js"></script>
+	<script src="js/vendor/jquery-3.2.1.min.js"></script>
+	<script src="js/vendor/spectrum/spectrum.js"></script>
 	<script src="js/app.js"></script>
 
 	<script>
