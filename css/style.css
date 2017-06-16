@@ -31,9 +31,13 @@ html, body {
 #table-pane #screen-table {
 	width: 100%;
 	margin: auto;
-	border-top: 1px solid;
-	border-left: 1px solid;
+	border: 1px solid;
 	border-color: #ccc;
+}
+
+#table-pane #screen-table.show-grid {
+	border-right: 0;
+	border-bottom: 0;
 }
 
 #table-pane #screen-table .line {
@@ -43,11 +47,14 @@ html, body {
 }
 
 #table-pane #screen-table .outer-cell {
+	flex-basis: 100%;
+	padding: 0;
+}
+
+#table-pane #screen-table.show-grid .outer-cell {
 	border-right: 1px solid;
 	border-bottom: 1px solid;
 	border-color: #ccc;
-	flex-basis: 100%;
-	padding: 0;
 }
 
 #table-pane #screen-table .cell {
@@ -162,12 +169,21 @@ html, body {
 
 
 #toolkit-pane #menu-pane {
-	padding: 15px;
-    padding-left: 0;
-    padding-bottom: 0;
+
+}
+
+#toolkit-pane #menu-pane ul {
     overflow: hidden;
     list-style-type: none;
     margin: 0;
+    padding: 15px;
+    padding-left: 0;
+    padding-bottom: 0;
+    border-bottom: 2px solid #404040;
+}
+
+#toolkit-pane #menu-pane ul#menu-actions {
+	padding-bottom: 4px;
 }
 
 #toolkit-pane #menu-pane li {
@@ -182,11 +198,12 @@ html, body {
 	display: block;
     text-decoration: none;
     color: #fff;
-    background-color: #6496c8;
+    background-color: #3498db;
     border: none;
     border-radius: 4px;
-    box-shadow: 0 4px #27496d;
+    box-shadow: 0 4px #2770a0;
     font-size: 14px;
+    line-height: 20px;
     padding: 10px;
     position: relative;
 }
@@ -203,20 +220,48 @@ html, body {
 
 #toolkit-pane #menu-pane a i {
 	font-size: 130%;
-	margin-right: 3px;
-	transform: translateY(1px);
+    margin-right: 9px;
+    transform: translateX(4px) translateY(3px);
+    width: 20px;
 }
 
 #app:not(.color-picker-mode) #toolkit-pane #menu-pane a:hover {
-	background-color: #417cb8;
+	background-color: #2e8ac7;
+	box-shadow: 0 4px #27496d;
 }
 
 #app:not(.color-picker-mode) #toolkit-pane #menu-pane a:active {
-	background-color: #417cb8;
-	box-shadow: 0 2px #27496d;
+	background-color: #277bb3;
+    box-shadow: 0 2px #1c5275;
 	transform: translateY(2px);
 }
 
+#toolkit-pane #menu-pane .option-wrapper {
+	display: block;
+	text-decoration: none;
+	color: #404040;
+	background-color: #eee;
+	border: 1px solid #d7dcde;
+	border-radius: 4px;
+	font-size: 14px;
+	line-height: 20px;
+	position: relative;
+	box-sizing: border-box;
+}
+
+#toolkit-pane #menu-pane .option-wrapper:hover {
+	background-color: #eaeaea;
+}
+
+#toolkit-pane #menu-pane .option-wrapper label {
+	display: block;
+	padding: 10px;
+	cursor: pointer;
+}
+
+#toolkit-pane #menu-pane .option-wrapper label > div {
+	margin-right: 7px;
+}
 
 #app.color-picker-mode #toolkit-pane #colors-pane #color-selector .color-wrapper {
 	opacity: 0.2;

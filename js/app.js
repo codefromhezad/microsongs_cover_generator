@@ -46,6 +46,11 @@ var Generator = {
 	eraserMode: false,
 	colorPickerIsActive: false,
 
+	/* USER OPTIONS ACCESSORS */
+	userDefaultOptions: {
+		showScreenGrid: false,
+	},
+	userOptions: {},
 
 	/* DATA HELPERS */
 	generateRandomColors: function() {
@@ -60,7 +65,7 @@ var Generator = {
 
 
 	/* DATA INITIATING / SAVING / LOADING */
-	setInitialDefaultValues: function() {
+	setInitialDefaultPixelsValue: function() {
 
 		// Set all pixels to their default value (NULL_PIXEL)
 		var total_pixels = Generator.PIXELS_PER_SIDE * Generator.PIXELS_PER_SIDE;
@@ -72,7 +77,12 @@ var Generator = {
 		for(var i = 0; i < Generator.NUM_COLORS; i++) {
 			Generator.usedPixelsPerColor[i] = 0;
 		}
+	},
 
+	setInitialDefaultUserOptions: function() {
+		for(var opt in Generator.userDefaultOptions) {
+			Generator.userOptions[opt] = Generator.userDefaultOptions[opt];
+		}
 	},
 
 	isStateFileValid: function(jsonState) {
@@ -83,7 +93,8 @@ var Generator = {
 		Generator.lastSavedState = JSON.stringify({
 			colors: Generator.colors,
 			pixels: Generator.pixels,
-			usedPixelsPerColor: Generator.usedPixelsPerColor
+			usedPixelsPerColor: Generator.usedPixelsPerColor,
+			userOptions: Generator.userOptions
 		});
 	},
 
@@ -91,11 +102,15 @@ var Generator = {
 		Generator.colors = jsonState.colors;
 		Generator.pixels = jsonState.pixels;
 		Generator.usedPixelsPerColor = jsonState.usedPixelsPerColor;
+
+		if( jsonState.userOptions ) {
+			$.extend(Generator.userOptions, jsonState.userOptions);
+		}
 	},
 
 	saveToJsonFile: function() {
 		Generator.saveState();
-		
+
 		var tstamp = new Date().getTime();
 		var filename = 'microsongs_cover_export_'+tstamp+'.json';
 		
@@ -201,14 +216,20 @@ var Generator = {
 		});
 		Generator.$color_picker_ui = $('.sp-container');
 
-		/* Override "cancel" click since the plugin doesn't
-		   triggers a "cancel" */
+		/* Override "cancel" click in the color picker since the 
+			plugin doesn't triggers a "cancel" event */
 		Generator.$color_picker_ui.find('.sp-cancel').on('click', function(e) {
 			e.preventDefault();
 			e.stopPropagation();
 
 			Generator.cancelColorSelection();
-		})
+		});
+
+		/* Init iCheck plugin */
+		$('input').iCheck({
+			checkboxClass: 'icheckbox_flat-blue',
+			radioClass: 'iradio_flat-blue'
+		});
 	},
 
 	bindListeners: function() {
@@ -312,7 +333,7 @@ var Generator = {
 			}
 		});
 
-		/* Load JSON file */
+		/* Load State JSON file */
 		$body.on('change', '#import-json-file-file-input', function(e) {
 			if( Generator.colorPickerIsActive ) {
 				return;
@@ -356,6 +377,12 @@ var Generator = {
 			}
 
 		});
+
+		/* Update Screen Grid visibility */
+		$body.on('ifToggled', '#option-show-grid', function(e) {
+			var checkStatus = $(this).is(':checked');
+			Generator.setScreenGridVisibility(checkStatus);
+		});
 	},
 
 
@@ -367,6 +394,16 @@ var Generator = {
 
 		Generator.$color_selector.find('.current').removeClass('current');
 		Generator.$selected_color_wrapper.addClass('current');
+	},
+
+	setScreenGridVisibility: function(isVisible) {
+		Generator.userOptions.showScreenGrid = isVisible;
+
+		if( isVisible ) {
+			Generator.$table.addClass('show-grid');
+		} else {
+			Generator.$table.removeClass('show-grid');
+		}
 	},
 
 	updateSelectedColorRGB: function(color_value) {
@@ -503,7 +540,8 @@ var Generator = {
 			Generator.$app = $('#app');
 
 			Generator.generateRandomColors();
-			Generator.setInitialDefaultValues();
+			Generator.setInitialDefaultPixelsValue();
+			Generator.setInitialDefaultUserOptions();
 			Generator.initPlugins();
 			Generator.bindListeners();
 		}
@@ -514,6 +552,15 @@ var Generator = {
 		Generator.setEraserMode(false);
 		Generator.setSelectedColor(0);
 
+		/* Applying loaded user options (only relevant when loading a state file since
+		   	new projects use default option values) */
+		if( Generator.userOptions.showScreenGrid ) {
+			$('#option-show-grid').iCheck('check');
+		} else {
+			$('#option-show-grid').iCheck('uncheck');
+		}
+
+		/* Inserting HTML Nodes */
 		$('#table-pane').html('');
 		$('#colors-pane').html('');
 
