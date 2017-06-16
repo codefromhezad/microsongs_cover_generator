@@ -22,20 +22,15 @@ html, body {
 	overflow: hidden;
 }
 
-#app > div {
-	position: relative;
-	float: left;
-}
-
 
 #table-pane { 
-	width: 50%;
-	border-right: 1px solid #404040;
+	width: 70%;
 	padding: 15px;
 }
 
-#table-pane #screen-table {
-	width: 100%;
+#table-pane table#screen-table {
+	width: 45vw;
+	margin: auto;
 	border-collapse: collapse;
 	border-spacing: 0;
 }
@@ -60,8 +55,13 @@ html, body {
 
 
 #toolkit-pane { 
-	width: 50%;
+	width: 30%;
 	overflow: hidden;
+	position: fixed;
+	top: 0;
+	right: 0;
+	border-left: 2px solid #404040;
+	height: 100%;
 }
 
 #toolkit-pane #colors-pane {
@@ -69,9 +69,7 @@ html, body {
 	padding-left: 0;
 	padding-bottom: 0;
 	overflow: hidden;
-	border-right: 1px solid #404040;
-	width: 60%;
-	float: left;
+	border-bottom: 2px solid #404040;
 }
 
 #toolkit-pane #colors-pane .color-wrapper {
@@ -160,8 +158,6 @@ html, body {
 
 
 #toolkit-pane #menu-pane {
-	width: 40%;
-	float: left;
 	padding: 15px;
     padding-left: 0;
     padding-bottom: 0;

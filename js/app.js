@@ -103,7 +103,7 @@ var Generator = {
 
 	/* UI BUILDERS */
 	buildTable: function() {
-		var table = '<table id="screen-table">';
+		var table = '<table id="screen-table" border="0" cellpadding="0" cellspacing="0">';
 		for( var y = 0; y < Generator.PIXELS_PER_SIDE; y++ ) {
 			table += '<tr>';
 			for( var x = 0; x < Generator.PIXELS_PER_SIDE; x++ ) {
