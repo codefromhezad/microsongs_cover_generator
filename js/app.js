@@ -244,7 +244,7 @@ var Generator = {
 		$body.on('mousedown', '#screen-table', function(e) {
 			e.preventDefault();
 
-			if( Generator.colorPickerIsActive ) {
+			if( Generator.colorPickerIsActive || e.which != 1  ) {
 				return;
 			}
 
