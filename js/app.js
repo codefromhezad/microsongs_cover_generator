@@ -90,8 +90,8 @@ var Generator = {
 	},
 
 	saveToJsonFile: function() {
-		var tstamp = new Date().getTime() / 1000;
-		var filename = tstamp + '_microsongs_cover_export.json';
+		var tstamp = new Date().getTime();
+		var filename = 'microsongs_cover_export_'+tstamp+'.json';
 		
 		var element = document.createElement('a');
 		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(Generator.lastSavedState));
