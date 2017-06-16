@@ -2,6 +2,10 @@ var Generator = {
 
 	/* DATA CONSTS */
 	NULL_PIXEL: -1,
+	ALERT_WARNING: { swal_type: "warning", swal_title: "Be aware!", swal_ok_button: "Dully noted!" }, 
+	ALERT_ERROR: { swal_type: "error", swal_title: "Oops!", swal_ok_button: "Oh okay :/" }, 
+	ALERT_SUCCESS: { swal_type: "success", swal_title: "Oh yeah!", swal_ok_button: "Neat!" }, 
+	ALERT_INFO: { swal_type: "info", swal_title: "Hey!", swal_ok_button: "Okay!" },
 
 	/* APP CONSTS */
 	PIXELS_PER_SIDE: 40,
@@ -104,8 +108,14 @@ var Generator = {
 	},
 
 	/* ERRORS HANDLER */
-	handleError: function(errorMessage) {
-		alert(errorMessage);
+	alert: function(alert_type_data, message) {
+		swal({
+			type: alert_type_data.swal_type,
+			title: alert_type_data.swal_title,
+			text: message,
+			confirmButtonText: alert_type_data.swal_ok_button,
+			html: true
+		});
 	},
 
 
@@ -336,13 +346,13 @@ var Generator = {
 						Generator.loadJsonState(jsonState);
 						Generator.init(true);
 					} else {
-						Generator.handleError('Oops ! Looks like the state file you selected is either invalid or corrupted :/');
+						Generator.alert(Generator.ALERT_ERROR, 'Looks like the state file you selected is either invalid or corrupted');
 					}
 				};
 				reader.readAsText(file);
 			
 			} else {
-				Generator.handleError('Oops ! Looks like the file you selected is not a valid state file ! (Hint: Its extension should be "json")');
+				Generator.alert(Generator.ALERT_ERROR, 'Looks like the file you selected is not a valid state file');
 			}
 
 		});

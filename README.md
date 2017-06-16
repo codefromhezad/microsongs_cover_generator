@@ -14,3 +14,4 @@ If a song is 60 seconds long, and is represented by the color red [ rgb(255, 0, 
 
 * [Jquery](https://jquery.com/)
 * [Spectrum Colorpicker](https://github.com/bgrins/spectrum)
+* [Sweet Alert](http://t4t5.github.io/sweetalert/)
