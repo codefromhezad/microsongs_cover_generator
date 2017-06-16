@@ -71,6 +71,10 @@ var Generator = {
 
 	},
 
+	isStateFileValid: function(jsonState) {
+		return ( jsonState.colors && jsonState.pixels && jsonState.usedPixelsPerColor ) !== undefined;
+	},
+
 	saveState: function() {
 		Generator.lastSavedState = JSON.stringify({
 			colors: Generator.colors,
@@ -79,9 +83,7 @@ var Generator = {
 		});
 	},
 
-	loadState: function(stateString) {
-		var jsonState = JSON.parse(stateString);
-
+	loadJsonState: function(jsonState) {
 		Generator.colors = jsonState.colors;
 		Generator.pixels = jsonState.pixels;
 		Generator.usedPixelsPerColor = jsonState.usedPixelsPerColor;
@@ -100,6 +102,12 @@ var Generator = {
 		element.click();
 		document.body.removeChild(element);
 	},
+
+	/* ERRORS HANDLER */
+	handleError: function(errorMessage) {
+		alert(errorMessage);
+	},
+
 
 	/* UI BUILDERS */
 	buildTable: function() {
@@ -147,6 +155,7 @@ var Generator = {
 
 		Generator.$color_selector = $(selector);
 	},
+
 
 	/* UI LISTENERS / PLUGIN INITIATORS */
 	initPlugins: function() {
@@ -297,18 +306,43 @@ var Generator = {
 				return;
 			}
 
-			var file = e.target.files[0];
-			if (!file) {
-			return;
+			if (! e.target.files && e.target.files[0]) {
+				return;
 			}
 
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				var contents = e.target.result;
-				Generator.loadState(contents);
-				Generator.init(true);
-			};
-			reader.readAsText(file);
+			var file = e.target.files[0];
+			var fileExtension = file.name.split('.').pop().toLowerCase();
+			
+			if( fileExtension === 'json' ) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					var isFileValid = true;
+					var contents = e.target.result;
+					var jsonState;
+
+					try {
+						jsonState = JSON.parse(contents);
+
+						if( ! Generator.isStateFileValid(jsonState) ) {
+							isFileValid = false;
+						}
+					} catch(e) {
+						isFileValid = false;
+					}
+					
+					if( isFileValid ) {
+						Generator.loadJsonState(jsonState);
+						Generator.init(true);
+					} else {
+						Generator.handleError('Oops ! Looks like the state file you selected is either invalid or corrupted :/');
+					}
+				};
+				reader.readAsText(file);
+			
+			} else {
+				Generator.handleError('Oops ! Looks like the file you selected is not a valid state file ! (Hint: Its extension should be "json")');
+			}
+
 		});
 	},
 
