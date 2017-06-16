@@ -111,9 +111,9 @@ var Generator = {
 
 	/* UI BUILDERS */
 	buildTable: function() {
-		var table = '<table id="screen-table" border="0" cellpadding="0" cellspacing="0">';
+		var table = '<div id="screen-table">';
 		for( var y = 0; y < Generator.PIXELS_PER_SIDE; y++ ) {
-			table += '<tr>';
+			table += '<div class="line">';
 			for( var x = 0; x < Generator.PIXELS_PER_SIDE; x++ ) {
 				var pixel_index = (x + y * Generator.PIXELS_PER_SIDE);
 				var pixel_color_id = Generator.pixels[pixel_index];
@@ -123,11 +123,13 @@ var Generator = {
 					css_color = Generator.colors[pixel_color_id];
 				}
 				
-				table += '<td><div class="cell" data-pixel-index="'+pixel_index+'" data-color="'+pixel_color_id+'" style="background-color: '+css_color+';"></div></td>';
+				table += '<div class="outer-cell">' +
+					'<div class="cell" data-pixel-index="'+pixel_index+'" data-color="'+pixel_color_id+'" style="background-color: '+css_color+';"></div>' +
+				'</div>';
 			}
-			table += '</tr>';
+			table += '</div>';
 		}
-		table += '</table>';
+		table += '</div>';
 
 		Generator.$table = $(table);
 	},

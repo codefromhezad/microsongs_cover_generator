@@ -28,21 +28,25 @@ html, body {
 	padding: 15px;
 }
 
-#table-pane table#screen-table {
+#table-pane #screen-table {
 	width: 100%;
 	margin: auto;
-	border-collapse: collapse;
-	border-spacing: 0;
+	border-top: 1px solid;
+	border-left: 1px solid;
+	border-color: #ccc;
 }
 
-#table-pane #screen-table tr {
+#table-pane #screen-table .line {
 	margin: 0;
 	padding: 0;
-	border: none;
+	display: flex;
 }
 
-#table-pane #screen-table td {
-	border: 1px solid #ccc;
+#table-pane #screen-table .outer-cell {
+	border-right: 1px solid;
+	border-bottom: 1px solid;
+	border-color: #ccc;
+	flex-basis: 100%;
 	padding: 0;
 }
 
