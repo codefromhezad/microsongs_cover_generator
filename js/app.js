@@ -35,6 +35,7 @@ var Generator = {
 	$color_picker: null,
 	$color_picker_ui: null,
 	$selected_color_wrapper: null,
+	$image_canvas: null,
 
 	/* DATA ACCESSORS */
 	colors: [],
@@ -124,6 +125,53 @@ var Generator = {
 		document.body.removeChild(element);
 	},
 
+	saveToImageFile: function(image_size) {
+		var pixel_size = Math.floor(image_size / Generator.PIXELS_PER_SIDE);
+
+		var canvas = Generator.$image_canvas[0];
+		var ctx = canvas.getContext('2d');
+
+		canvas.width = image_size;
+		canvas.height = image_size;
+
+		/* Generate Canvas contents */
+		for( var y = 0; y < Generator.PIXELS_PER_SIDE; y++ ) {
+			for( var x = 0; x < Generator.PIXELS_PER_SIDE; x++ ) {
+				var pixel_index = (x + y * Generator.PIXELS_PER_SIDE);
+				var pixel_color_id = Generator.pixels[pixel_index];
+				var css_color;
+
+				var x0 = x * pixel_size;
+				var y0 = y * pixel_size;
+
+				if( pixel_color_id == Generator.NULL_PIXEL ) {
+					css_color = "#ffffff";
+				} else {
+					css_color = Generator.colors[pixel_color_id];
+				}
+
+				ctx.fillStyle = css_color;
+				ctx.fillRect(x0, y0, x0 + pixel_size, y0 + pixel_size);
+			}
+		}
+
+		/* Generate Image from Canvas contents */
+		var image_blob_data_url = canvas.toDataURL("image/png");
+
+		/* Download Image file */
+		var tstamp = new Date().getTime();
+		var filename = 'microsongs_cover_image_'+tstamp+'.png';
+		
+		var element = document.createElement('a');
+		element.setAttribute('href', image_blob_data_url);
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+		element.click();
+		document.body.removeChild(element);
+	},
+
 	/* ERRORS HANDLER */
 	alert: function(alert_type_data, message) {
 		swal({
@@ -134,7 +182,6 @@ var Generator = {
 			html: true
 		});
 	},
-
 
 	/* UI BUILDERS */
 	buildTable: function() {
@@ -323,6 +370,17 @@ var Generator = {
 			}
 
 			Generator.saveToJsonFile();
+		});
+
+		/* Generate PNG File and download it */
+		$body.on('click', '#download-image', function(e) {
+			e.preventDefault();
+
+			if( Generator.colorPickerIsActive ) {
+				return;
+			}
+
+			Generator.saveToImageFile(1000);
 		});
 
 		/* Avoid showing file dialog on import button is color picker is active */
@@ -538,6 +596,7 @@ var Generator = {
 	init: function(reinitiating) {
 		if( ! reinitiating ) {
 			Generator.$app = $('#app');
+			Generator.$image_canvas = $('#image-canvas');
 
 			Generator.generateRandomColors();
 			Generator.setInitialDefaultPixelsValue();

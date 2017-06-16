@@ -294,4 +294,7 @@ html, body {
     border-top-right-radius: 10px;
 }
 
+#image-canvas {
+	display: none;
+}
 
