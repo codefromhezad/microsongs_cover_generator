@@ -94,6 +94,8 @@ var Generator = {
 	},
 
 	saveToJsonFile: function() {
+		Generator.saveState();
+		
 		var tstamp = new Date().getTime();
 		var filename = 'microsongs_cover_export_'+tstamp+'.json';
 		
@@ -278,8 +280,6 @@ var Generator = {
 			}
 
 			Generator.userIsDrawing = false;
-
-			Generator.saveState();
 		});
 
 		/* User is moving mouse over screen "pixels" */
