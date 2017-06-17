@@ -239,7 +239,8 @@ var Generator = {
 		/* Init color picker */
 		Generator.$color_picker = $('#color-picker').spectrum({
 			flat: true,
-		    showInput: false,
+			preferredFormat: "rgb",
+		    showInput: true,
 		    showInitial: false,
 		    allowEmpty: false,
 		    clickoutFiresChange: true,
